@@ -37,7 +37,7 @@ export function Navbar({ onSearchOpen, onMenuOpen }: NavbarProps) {
             className="hidden items-center gap-2 border border-line px-3 py-2 text-[13px] text-muted transition-colors duration-300 ease-editorial hover:border-accent hover:text-accent sm:flex"
           >
             <Search size={15} />
-            <span className="hidden xl:inline">Search products or flavors</span>
+            <span className="hidden xl:inline">Search products or brands</span>
             <kbd className="hidden font-mono text-[10px] text-muted xl:inline">⌘K</kbd>
           </button>
           <button
