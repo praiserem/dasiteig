@@ -39,26 +39,18 @@ export function Footer() {
       <div className="shell grid grid-cols-2 gap-10 py-14 sm:grid-cols-4 lg:grid-cols-5 lg:py-20">
         <div className="col-span-2 lg:col-span-2">
           <p className="font-display text-2xl font-semibold tracking-tightest">
-            KEPT<span className="text-white/50">.</span>
+            KEPT<span className="text-accent">.</span>
           </p>
           <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-white/60">
             Everyday goods, kept well. A small general store for objects that outlast their
             trend cycle.
           </p>
-          <div className="mt-6 flex items-center gap-3">
-            <a
-              href="#"
-              aria-label="Instagram"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors duration-200 hover:border-white hover:text-white"
-            >
-              <Instagram size={16} />
+          <div className="mt-6 flex items-center gap-4">
+            <a href="#" aria-label="Instagram" className="text-white/70 hover:text-accent">
+              <Instagram size={18} />
             </a>
-            <a
-              href="mailto:hello@kept.shop"
-              aria-label="Email"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors duration-200 hover:border-white hover:text-white"
-            >
-              <Mail size={16} />
+            <a href="mailto:hello@kept.shop" aria-label="Email" className="text-white/70 hover:text-accent">
+              <Mail size={18} />
             </a>
           </div>
         </div>
@@ -69,10 +61,7 @@ export function Footer() {
             <ul className="mt-4 space-y-2.5">
               {col.links.map((l) => (
                 <li key={l.label}>
-                  <Link
-                    to={l.href}
-                    className="text-[14px] text-white/75 transition-colors duration-200 hover:text-white"
-                  >
+                  <Link to={l.href} className="text-[14px] text-white/80 hover:text-accent">
                     {l.label}
                   </Link>
                 </li>

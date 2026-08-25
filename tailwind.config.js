@@ -1,21 +1,20 @@
-/** @type {import('tailwind').Config} */
+/** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
-        // Monochrome palette — calm, paper-like neutrals
-        cream: '#FAFAF9',
-        paper: '#FFFFFF',
+        cream: '#F5F1E7',
+        paper: '#FBF9F4',
         surface: '#FFFFFF',
-        ink: '#141414',
-        'ink-soft': '#3F3F3F',
-        muted: '#8A8A8A',
-        line: '#EBEBEA',
-        'line-strong': '#D4D4D4',
-        accent: '#525252',
-        'accent-dark': '#262626',
-        'accent-tint': '#F0F0EF',
+        ink: '#1C1A16',
+        'ink-soft': '#3A362E',
+        muted: '#83786A',
+        line: '#E3DCC9',
+        'line-strong': '#CFC5AC',
+        accent: '#D8552A',
+        'accent-dark': '#B5451F',
+        'accent-tint': '#FBE4D6',
       },
       fontFamily: {
         display: ['"Space Grotesk"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
@@ -28,20 +27,11 @@ export default {
         widest: '0.16em',
       },
       maxWidth: {
-        shell: '1360px',
-      },
-      borderRadius: {
-        sm: '6px',
-        DEFAULT: '10px',
-        lg: '14px',
-        xl: '20px',
+        shell: '1400px',
       },
       boxShadow: {
-        // Softer, quieter shadows for a relaxed feel
-        drawer: '-24px 0 48px -24px rgba(20,20,20,0.12)',
-        card: '0 1px 2px rgba(20,20,20,0.03), 0 4px 16px -8px rgba(20,20,20,0.06)',
-        'card-hover': '0 2px 4px rgba(20,20,20,0.04), 0 12px 28px -12px rgba(20,20,20,0.10)',
-        header: '0 1px 0 rgba(20,20,20,0.05), 0 8px 24px -18px rgba(20,20,20,0.18)',
+        none: 'none',
+        drawer: '-24px 0 48px -24px rgba(28,26,22,0.18)',
       },
       transitionTimingFunction: {
         editorial: 'cubic-bezier(0.22, 1, 0.36, 1)',
