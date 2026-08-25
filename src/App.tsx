@@ -1,16 +1,28 @@
-import { useState } from 'react'
-import { Route, Routes, useLocation } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Route, Routes, useLocation, Navigate } from 'react-router-dom'
 import { AnnouncementBar } from './components/AnnouncementBar'
 import { Navbar } from './components/Navbar'
 import { MobileMenu } from './components/MobileMenu'
 import { SearchOverlay } from './components/SearchOverlay'
 import { CartDrawer } from './components/CartDrawer'
 import { Footer } from './components/Footer'
+import { AuthProvider, useAuth } from './hooks/useAuth'
 import { Home } from './pages/Home'
 import { ProductPage } from './pages/ProductPage'
 import { CategoryPage } from './pages/CategoryPage'
 import { SearchPage } from './pages/SearchPage'
 import { StaticPage } from './pages/StaticPage'
+import { Login } from './pages/Login'
+import { Signup } from './pages/Signup'
+import { AccountLayout } from './pages/Account'
+import { AdminLayout } from './pages/AdminLayout'
+import { AdminOverview } from './pages/admin/AdminOverview'
+import { AdminProducts } from './pages/admin/AdminProducts'
+import { ProductForm } from './pages/admin/ProductForm'
+import { AdminInventory } from './pages/admin/AdminInventory'
+import { StockAdjustPage } from './pages/admin/StockAdjustPage'
+import { AdminOrders } from './pages/admin/AdminOrders'
+import { AdminPlaceholder } from './pages/admin/AdminPlaceholder'
 
 const staticPages: Record<string, { title: string; body: string }> = {
   '/about': {
@@ -57,10 +69,12 @@ const staticPages: Record<string, { title: string; body: string }> = {
     title: 'Track your order.',
     body: 'Enter your order number and email at checkout confirmation to see live tracking. Questions? Email hello@kept.shop with your order number.',
   },
-  '/account': {
-    title: 'Account.',
-    body: 'Sign in to view order history, saved addresses, and returns. Account creation happens automatically at your first checkout.',
-  },
+}
+
+const RequireAuth = ({ children }: { children: JSX.Element }) => {
+  const { user, loading } = useAuth()
+  if (loading) return null
+  return user ? children : <Navigate to="/login" replace />
 }
 
 export default function App() {
@@ -68,40 +82,76 @@ export default function App() {
   const [isSearchOpen, setSearchOpen] = useState(false)
   const location = useLocation()
 
+  useEffect(() => {
+    setMobileMenuOpen(false)
+    setSearchOpen(false)
+  }, [location.pathname])
+
   return (
-    <div className="flex min-h-screen flex-col">
-      <a
-        href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:bg-ink focus:px-4 focus:py-2 focus:text-paper"
-      >
-        Skip to content
-      </a>
-      <AnnouncementBar />
-      <Navbar onSearchOpen={() => setSearchOpen(true)} onMenuOpen={() => setMobileMenuOpen(true)} />
+    <AuthProvider>
+      <div className="flex min-h-screen flex-col">
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:bg-accent focus:px-4 focus:py-2 focus:text-bg"
+        >
+          Skip to content
+        </a>
+        <AnnouncementBar />
+        <Navbar onSearchOpen={() => setSearchOpen(true)} onMenuOpen={() => setMobileMenuOpen(true)} />
 
-      <main id="main-content" className="flex-1" key={location.pathname}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/products/:slug" element={<ProductPage />} />
-          <Route path="/category/:slug" element={<CategoryPage />} />
-          <Route path="/search" element={<SearchPage />} />
-          {Object.entries(staticPages).map(([path, page]) => (
-            <Route key={path} path={path} element={<StaticPage {...page} />} />
-          ))}
-          <Route
-            path="*"
-            element={
-              <StaticPage title="Page not found." body="That page moved or never existed. Head back to the shop from the menu above." />
-            }
-          />
-        </Routes>
-      </main>
+        <main id="main-content" className="flex-1" key={location.pathname}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/products/:slug" element={<ProductPage />} />
+            <Route path="/category/:slug" element={<CategoryPage />} />
+            <Route path="/search" element={<SearchPage />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route
+              path="/account"
+              element={
+                <RequireAuth>
+                  <AccountLayout />
+                </RequireAuth>
+              }
+            />
+            <Route
+              path="/account/:tab"
+              element={
+                <RequireAuth>
+                  <AccountLayout />
+                </RequireAuth>
+              }
+            />
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<AdminOverview />} />
+              <Route path="products" element={<AdminProducts />} />
+              <Route path="products/new" element={<ProductForm />} />
+              <Route path="products/edit/:id" element={<ProductForm />} />
+              <Route path="inventory" element={<AdminInventory />} />
+              <Route path="inventory/adjust/:id" element={<StockAdjustPage />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="analytics" element={<AdminPlaceholder title="Analytics" />} />
+              <Route path="settings" element={<AdminPlaceholder title="Settings" />} />
+            </Route>
+            {Object.entries(staticPages).map(([path, page]) => (
+              <Route key={path} path={path} element={<StaticPage {...page} />} />
+            ))}
+            <Route
+              path="*"
+              element={
+                <StaticPage title="Page not found." body="That page moved or never existed. Head back to the shop from the menu above." />
+              }
+            />
+          </Routes>
+        </main>
 
-      <Footer />
+        <Footer />
 
-      <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
-      <SearchOverlay isOpen={isSearchOpen} onClose={() => setSearchOpen(false)} />
-      <CartDrawer />
-    </div>
+        <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
+        <SearchOverlay isOpen={isSearchOpen} onClose={() => setSearchOpen(false)} />
+        <CartDrawer />
+      </div>
+    </AuthProvider>
   )
 }

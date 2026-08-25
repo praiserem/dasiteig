@@ -27,16 +27,16 @@ export function CategoryPage() {
 
   return (
     <div className="shell py-12 lg:py-16">
-      <nav className="mb-6 text-[13px] text-muted">
+      <nav className="mb-6 text-[13px] text-text-tertiary">
         <Link to="/" className="hover:text-accent">
           Home
         </Link>
         {' / '}
-        <span className="text-ink-soft">{title}</span>
+        <span className="text-text-secondary">{title}</span>
       </nav>
       <p className="eyebrow mb-3">Shop by format</p>
-      <h1 className="font-display text-3xl font-semibold tracking-tightest sm:text-4xl">{title}</h1>
-      {description && <p className="mt-3 max-w-lg text-[15px] text-ink-soft">{description}</p>}
+      <h1 className="font-display text-3xl font-medium tracking-tighter sm:text-4xl text-text">{title}</h1>
+      {description && <p className="mt-3 max-w-lg text-[15px] text-text-secondary">{description}</p>}
 
       <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
         {list.map((p) => (
@@ -44,7 +44,7 @@ export function CategoryPage() {
         ))}
       </div>
       {list.length === 0 && (
-        <p className="mt-10 text-center text-sm text-muted">No products here yet — check back soon.</p>
+        <p className="mt-10 text-center text-sm text-text-tertiary">No products here yet — check back soon.</p>
       )}
     </div>
   )

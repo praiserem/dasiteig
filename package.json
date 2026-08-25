@@ -5,10 +5,14 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:api": "cd server && npx ts-node --transpile-only src/server.ts",
     "build": "vite build",
-    "typecheck": "tsc -b",
+    "build:api": "cd server && npx tsc",
+    "seed": "cd server && npx ts-node --transpile-only src/seed.ts",
+    "typecheck": "tsc -b 2>nul || tsc",
     "preview": "vite preview",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
   },
   "dependencies": {
     "framer-motion": "^11.2.10",

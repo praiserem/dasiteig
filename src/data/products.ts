@@ -3,13 +3,17 @@ export interface Variant {
   swatch?: string
 }
 
+export type StockStatus = 'IN_STOCK' | 'LOW_STOCK' | 'OUT_OF_STOCK'
+
 export interface Product {
+  id?: number
+  uuid?: string
   slug: string
   brand: string
   name: string
   category: 'bags' | 'tech' | 'apparel' | 'tools' | 'home' | 'accessories'
   price: number
-  compareAt?: number
+  compareAt?: number | null
   art: 'tote' | 'torch' | 'jacket' | 'multitool' | 'beanie' | 'mug' | 'satchel' | 'lamp' | 'sunglasses'
   artColor: string
   variantKind: string
@@ -20,8 +24,78 @@ export interface Product {
   details: string[]
   specs: { label: string; value: string }[]
   shipping: string
+  sku?: string | null
+  stockQuantity: number
+  lowStockThreshold: number
   new?: boolean
   bestSeller?: boolean
+  imageUrl?: string | null
+  createdAt?: string
+  updatedAt?: string
+  status: StockStatus
+}
+
+type ApiProduct = Omit<Product, 'id' | 'uuid' | 'compareAt' | 'new' | 'bestSeller' | 'imageUrl' | 'createdAt' | 'updatedAt' | 'status' | 'stockQuantity' | 'lowStockThreshold' | 'sku'> & {
+  id?: number
+  uuid?: string
+  compare_at?: number | null
+  new?: boolean
+  best_seller?: boolean
+  image_url?: string | null
+  created_at?: string
+  updated_at?: string
+  stock_quantity?: number
+  low_stock_threshold?: number
+  sku?: string | null
+}
+
+function parseJson(str: string): any[] {
+  try {
+    return JSON.parse(str)
+  } catch {
+    return []
+  }
+}
+
+function getStockStatus(stock: number, threshold: number): StockStatus {
+  if (stock === 0) return 'OUT_OF_STOCK'
+  if (stock <= threshold) return 'LOW_STOCK'
+  return 'IN_STOCK'
+}
+
+export function transformApiProduct(p: Record<string, any>): Product {
+  return {
+    id: p.id,
+    uuid: p.uuid,
+    slug: p.slug,
+    brand: p.brand,
+    name: p.name,
+    category: p.category as Product['category'],
+    price: p.price,
+    compareAt: p.compareAt ?? p.compare_at ?? null,
+    art: p.art,
+    artColor: p.art_color ?? p.artColor,
+    variantKind: p.variant_kind ?? p.variantKind,
+    variants: Array.isArray(p.variants) ? p.variants : parseJson(p.variants),
+    description: p.description,
+    details: Array.isArray(p.details) ? p.details : parseJson(p.details),
+    specs: Array.isArray(p.specs) ? p.specs : parseJson(p.specs),
+    shipping: p.shipping,
+    sku: p.sku,
+    stockQuantity: p.stockQuantity ?? p.stock_quantity ?? 0,
+    lowStockThreshold: p.lowStockThreshold ?? p.low_stock_threshold ?? 5,
+    new: Boolean(p.new ?? p.new_flag),
+    bestSeller: Boolean(p.bestSeller ?? p.best_seller),
+    rating: p.rating ?? 0,
+    reviewCount: p.reviewCount ?? p.review_count ?? 0,
+    imageUrl: p.imageUrl ?? p.image_url ?? null,
+    createdAt: p.createdAt ?? p.created_at,
+    updatedAt: p.updatedAt ?? p.updated_at,
+    status: getStockStatus(
+      p.stockQuantity ?? p.stock_quantity ?? 0,
+      p.lowStockThreshold ?? p.low_stock_threshold ?? 5,
+    ),
+  }
 }
 
 export const products: Product[] = [
@@ -42,8 +116,7 @@ export const products: Product[] = [
     ],
     rating: 4.8,
     reviewCount: 214,
-    description:
-      'A 16oz waxed canvas tote sized for a laptop, a water bottle, and whatever you pick up on the way home. The base is reinforced twice; the strap is sewn, not riveted.',
+    description: 'A 16oz waxed canvas tote sized for a laptop, a water bottle, and whatever you pick up on the way home. The base is reinforced twice; the strap is sewn, not riveted.',
     details: [
       '16oz cotton canvas, waxed finish',
       'Interior zip pocket and pen slot',
@@ -57,7 +130,11 @@ export const products: Product[] = [
       { label: 'Care', value: 'Spot clean' },
     ],
     shipping: 'Ships in 1–2 business days. Free over $75.',
+    sku: 'TOTE-001',
+    stockQuantity: 34,
+    lowStockThreshold: 5,
     bestSeller: true,
+    status: 'IN_STOCK',
   },
   {
     slug: 'anchorlight-pocket-torch',
@@ -75,8 +152,7 @@ export const products: Product[] = [
     ],
     rating: 4.7,
     reviewCount: 133,
-    description:
-      'A machined aluminum flashlight that fits a coin pocket and outputs 900 lumens at the top of its three-stage dial. USB-C recharge, no proprietary cable required.',
+    description: 'A machined aluminum flashlight that fits a coin pocket and outputs 900 lumens at the top of its three-stage dial. USB-C recharge, no proprietary cable required.',
     details: [
       'Machined 6061 aluminum body',
       '900 lm high / 200 lm med / 20 lm low',
@@ -91,6 +167,10 @@ export const products: Product[] = [
     ],
     shipping: 'Ships in 1–2 business days. Free over $75.',
     new: true,
+    sku: 'TORCH-001',
+    stockQuantity: 12,
+    lowStockThreshold: 5,
+    status: 'IN_STOCK',
   },
   {
     slug: 'waxed-trail-jacket',
@@ -102,17 +182,10 @@ export const products: Product[] = [
     art: 'jacket',
     artColor: '#5B5842',
     variantKind: 'SIZES',
-    variants: [
-      { label: 'XS' },
-      { label: 'S' },
-      { label: 'M' },
-      { label: 'L' },
-      { label: 'XL' },
-    ],
+    variants: [{ label: 'XS' }, { label: 'S' }, { label: 'M' }, { label: 'L' }, { label: 'XL' }],
     rating: 4.9,
     reviewCount: 302,
-    description:
-      'A four-pocket field jacket in waxed cotton twill, cut roomy enough for a midweight layer. Corduroy collar, brass hardware, and a hem long enough to sit on.',
+    description: 'A four-pocket field jacket in waxed cotton twill, cut roomy enough for a midweight layer. Corduroy collar, brass hardware, and a hem long enough to sit on.',
     details: [
       '9oz waxed cotton twill shell',
       'Corduroy under-collar',
@@ -127,6 +200,10 @@ export const products: Product[] = [
     ],
     shipping: 'Ships in 2–3 business days. Free over $75.',
     bestSeller: true,
+    sku: 'JACKET-001',
+    stockQuantity: 8,
+    lowStockThreshold: 5,
+    status: 'IN_STOCK',
   },
   {
     slug: 'keepers-multitool',
@@ -143,8 +220,7 @@ export const products: Product[] = [
     ],
     rating: 4.6,
     reviewCount: 98,
-    description:
-      'Twelve tools in a body sized for a pocket, not a toolbox: pliers, three drivers, a blade, a bottle opener, and the rest of what actually gets used weekly.',
+    description: 'Twelve tools in a body sized for a pocket, not a toolbox: pliers, three drivers, a blade, a bottle opener, and the rest of what actually gets used weekly.',
     details: [
       '420 stainless construction',
       '12 tools, one-hand opening pliers',
@@ -158,6 +234,10 @@ export const products: Product[] = [
       { label: 'Warranty', value: '25 years' },
     ],
     shipping: 'Ships in 1–2 business days. Free over $75.',
+    sku: 'TOOL-001',
+    stockQuantity: 0,
+    lowStockThreshold: 5,
+    status: 'OUT_OF_STOCK',
   },
   {
     slug: 'harbor-wool-beanie',
@@ -178,8 +258,7 @@ export const products: Product[] = [
     ],
     rating: 4.9,
     reviewCount: 441,
-    description:
-      'Merino and nylon blend, ribbed the whole way through, no fold-up cuff to fuss with. Heavier gauge than most — this one is built for actual cold.',
+    description: 'Merino and nylon blend, ribbed the whole way through, no fold-up cuff to fuss with. Heavier gauge than most — this one is built for actual cold.',
     details: [
       '80% merino wool / 20% nylon',
       'Fine-gauge, double-thick knit',
@@ -194,6 +273,10 @@ export const products: Product[] = [
     ],
     shipping: 'Ships in 1–2 business days. Free over $75.',
     bestSeller: true,
+    sku: 'BEANIE-001',
+    stockQuantity: 52,
+    lowStockThreshold: 10,
+    status: 'IN_STOCK',
   },
   {
     slug: 'longwear-steel-mug',
@@ -211,8 +294,7 @@ export const products: Product[] = [
     ],
     rating: 4.7,
     reviewCount: 176,
-    description:
-      'Double-walled 12oz steel mug that keeps coffee hot past the point most mugs give up. No handle to knock loose, no coating to wear through.',
+    description: 'Double-walled 12oz steel mug that keeps coffee hot past the point most mugs give up. No handle to knock loose, no coating to wear through.',
     details: [
       '18/8 stainless steel, double wall',
       'Keeps drinks hot 4+ hours',
@@ -226,6 +308,10 @@ export const products: Product[] = [
       { label: 'Care', value: 'Dishwasher safe' },
     ],
     shipping: 'Ships in 1–2 business days. Free over $75.',
+    sku: 'MUG-001',
+    stockQuantity: 3,
+    lowStockThreshold: 5,
+    status: 'LOW_STOCK',
   },
   {
     slug: 'satchel-no2-crossbody',
@@ -244,8 +330,7 @@ export const products: Product[] = [
     ],
     rating: 4.8,
     reviewCount: 159,
-    description:
-      'Full-grain leather trim over waxed canvas, sized for a wallet, keys, and a phone with room to spare. The strap adjusts short enough to wear across the chest.',
+    description: 'Full-grain leather trim over waxed canvas, sized for a wallet, keys, and a phone with room to spare. The strap adjusts short enough to wear across the chest.',
     details: [
       'Waxed canvas body, leather trim',
       'Magnetic flap closure',
@@ -260,6 +345,10 @@ export const products: Product[] = [
     ],
     shipping: 'Ships in 1–2 business days. Free over $75.',
     new: true,
+    sku: 'SATCHEL-001',
+    stockQuantity: 21,
+    lowStockThreshold: 5,
+    status: 'IN_STOCK',
   },
   {
     slug: 'nightwatch-desk-lamp',
@@ -276,8 +365,7 @@ export const products: Product[] = [
     ],
     rating: 4.6,
     reviewCount: 87,
-    description:
-      'A weighted-base task lamp with a warm-to-cool dial instead of presets. The arm holds any angle without a spring fighting you the whole way there.',
+    description: 'A weighted-base task lamp with a warm-to-cool dial instead of presets. The arm holds any angle without a spring fighting you the whole way there.',
     details: [
       'Stepless warm-to-cool dial, 2700K–5000K',
       'Cast iron weighted base',
@@ -291,6 +379,10 @@ export const products: Product[] = [
       { label: 'Bulb life', value: '30,000 hr LED' },
     ],
     shipping: 'Ships in 2–3 business days. Free over $75.',
+    sku: 'LAMP-001',
+    stockQuantity: 6,
+    lowStockThreshold: 5,
+    status: 'IN_STOCK',
   },
   {
     slug: 'trailhead-sunglasses',
@@ -302,16 +394,15 @@ export const products: Product[] = [
     artColor: '#2B2A26',
     variantKind: 'COLORS',
     variants: [
-      { label: 'Tortoise', swatch: '#8A5A2E' },
-      { label: 'Black', swatch: '#1C1A16' },
-      { label: 'Sand', swatch: '#D8CBA8' },
-      { label: 'Olive', swatch: '#6C6B4C' },
-      { label: 'Rust', swatch: '#B75A32' },
+      { label: 'Tortoise' },
+      { label: 'Black' },
+      { label: 'Sand' },
+      { label: 'Olive' },
+      { label: 'Rust' },
     ],
     rating: 4.5,
     reviewCount: 122,
-    description:
-      'Polarized lenses in a bio-acetate frame, weighted so they sit flat in a shirt pocket without sliding. UV400 across every colorway.',
+    description: 'Polarized lenses in a bio-acetate frame, weighted so they sit flat in a shirt pocket without sliding. UV400 across every colorway.',
     details: [
       'Bio-acetate frame',
       'Polarized UV400 lenses',
@@ -326,6 +417,10 @@ export const products: Product[] = [
     ],
     shipping: 'Ships in 1–2 business days. Free over $75.',
     new: true,
+    sku: 'SUN-001',
+    stockQuantity: 18,
+    lowStockThreshold: 5,
+    status: 'IN_STOCK',
   },
 ]
 

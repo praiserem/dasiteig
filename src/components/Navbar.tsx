@@ -1,7 +1,8 @@
-import { Link } from 'react-router-dom'
-import { Menu, Search, ShoppingBag, User } from 'lucide-react'
+import { Link, NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Menu, Search, ShoppingBag, User, LogIn } from 'lucide-react'
 import { navCategories } from '../data/categories'
 import { useCart } from '../hooks/useCart'
+import { useAuth } from '../hooks/useAuth'
 
 interface NavbarProps {
   onSearchOpen: () => void
@@ -10,23 +11,36 @@ interface NavbarProps {
 
 export function Navbar({ onSearchOpen, onMenuOpen }: NavbarProps) {
   const { itemCount, openCart } = useCart()
+  const { user } = useAuth()
+  const location = useLocation()
+
+  const navLinks = [
+    { to: '/', label: 'Home', exact: true },
+    ...navCategories.map((c) => ({ to: `/category/${c.slug}`, label: c.name, exact: false })),
+    { to: '/journal', label: 'Journal', exact: false },
+  ]
 
   return (
-    <header className="sticky top-0 z-40 border-b border-line bg-cream/95 backdrop-blur">
-      <div className="shell flex h-16 items-center justify-between gap-6 lg:h-20">
-        <Link to="/" className="shrink-0 font-display text-xl font-semibold tracking-tightest">
-          KEPT<span className="text-accent">.</span>
+    <header className="sticky top-0 z-40 border-b border-border bg-nav-bg/80 backdrop-blur">
+      <div className="shell flex h-16 items-center justify-between gap-6 lg:h-18">
+        <Link to="/" className="shrink-0 font-display text-xl font-semibold text-text">
+          KEPT
         </Link>
 
-        <nav className="hidden items-center gap-7 lg:flex">
-          {navCategories.map((c) => (
-            <Link
-              key={c.slug}
-              to={`/category/${c.slug}`}
-              className="link-underline text-[13px] font-medium uppercase tracking-wideish"
+        <nav className="hidden items-center gap-6 lg:flex">
+          {navLinks.map((link) => (
+            <NavLink
+              key={link.to}
+              to={link.to}
+              end={link.exact}
+              className={({ isActive }) =>
+                `text-[13px] font-medium uppercase tracking-wide transition-colors duration-200 ${
+                  isActive ? 'text-accent' : 'text-text-secondary hover:text-text'
+                }`
+              }
             >
-              {c.name}
-            </Link>
+              {link.label}
+            </NavLink>
           ))}
         </nav>
 
@@ -34,34 +48,36 @@ export function Navbar({ onSearchOpen, onMenuOpen }: NavbarProps) {
           <button
             onClick={onSearchOpen}
             aria-label="Search"
-            className="hidden items-center gap-2 border border-line px-3 py-2 text-[13px] text-muted transition-colors duration-300 ease-editorial hover:border-accent hover:text-accent sm:flex"
+            className="hidden items-center gap-2 border border-border bg-modal px-3 py-2 text-[13px] text-text-secondary transition-colors duration-200 hover:border-accent hover:text-accent sm:flex"
           >
             <Search size={15} />
-            <span className="hidden xl:inline">Search products or flavors</span>
-            <kbd className="hidden font-mono text-[10px] text-muted xl:inline">⌘K</kbd>
+            <span className="hidden xl:inline">Search</span>
+            <kbd className="hidden font-mono text-[10px] text-text-tertiary xl:inline">⌘K</kbd>
           </button>
           <button
             onClick={onSearchOpen}
             aria-label="Search"
-            className="p-2.5 text-ink hover:text-accent sm:hidden"
+            className="p-2.5 text-text-secondary hover:text-accent sm:hidden"
           >
             <Search size={19} />
           </button>
-          <Link
-            to="/account"
-            aria-label="Account"
-            className="hidden p-2.5 text-ink hover:text-accent lg:inline-flex"
-          >
-            <User size={19} />
-          </Link>
+          {user ? (
+            <Link to="/account" aria-label="Account" className="p-2.5 text-text-secondary hover:text-accent lg:inline-flex">
+              <User size={19} />
+            </Link>
+          ) : (
+            <Link to="/login" aria-label="Login" className="p-2.5 text-text-secondary hover:text-accent lg:inline-flex">
+              <LogIn size={19} />
+            </Link>
+          )}
           <button
             onClick={openCart}
             aria-label="Open cart"
-            className="relative p-2.5 text-ink hover:text-accent"
+            className="relative p-2.5 text-text-secondary hover:text-accent"
           >
             <ShoppingBag size={19} />
             {itemCount > 0 && (
-              <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-semibold text-paper">
+              <span className="absolute right-0.5 top-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-accent text-[9px] font-semibold text-bg">
                 {itemCount}
               </span>
             )}
@@ -69,7 +85,7 @@ export function Navbar({ onSearchOpen, onMenuOpen }: NavbarProps) {
           <button
             onClick={onMenuOpen}
             aria-label="Open menu"
-            className="p-2.5 text-ink hover:text-accent lg:hidden"
+            className="p-2.5 text-text-secondary hover:text-accent lg:hidden"
           >
             <Menu size={20} />
           </button>

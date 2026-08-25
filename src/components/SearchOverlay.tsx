@@ -18,11 +18,13 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [recent, setRecent] = useState<string[]>([])
 
   useEffect(() => {
-    try {
-      const raw = localStorage.getItem(RECENT_KEY)
-      setRecent(raw ? JSON.parse(raw) : [])
-    } catch {
-      setRecent([])
+    if (isOpen) {
+      try {
+        const raw = localStorage.getItem(RECENT_KEY)
+        setRecent(raw ? JSON.parse(raw) : [])
+      } catch {
+        setRecent([])
+      }
     }
   }, [isOpen])
 
@@ -56,7 +58,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="fixed inset-0 z-50 bg-ink/40 backdrop-blur-sm"
+          className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
           onClick={onClose}
         >
           <motion.div
@@ -65,19 +67,19 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
             exit={{ y: -16, opacity: 0 }}
             transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="mx-auto mt-0 flex max-h-screen w-full max-w-2xl flex-col bg-paper shadow-drawer sm:mt-20 sm:max-h-[80vh]"
+            className="mx-auto mt-0 flex max-h-screen w-full max-w-2xl flex-col rounded-xl border border-border bg-modal sm:mt-20 sm:max-h-[80vh]"
           >
-            <div className="flex items-center gap-3 border-b border-line px-5 py-4">
-              <Search size={18} className="shrink-0 text-muted" />
+            <div className="flex items-center gap-3 border-b border-border px-5 py-4">
+              <Search size={18} className="shrink-0 text-text-tertiary" />
               <input
                 autoFocus
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && commitSearch(query)}
                 placeholder="Search products or brands"
-                className="w-full bg-transparent font-display text-lg placeholder:text-muted focus:outline-none"
+                className="w-full bg-transparent font-display text-lg text-text placeholder:text-text-tertiary focus:outline-none"
               />
-              <button onClick={onClose} aria-label="Close search" className="p-1 text-ink hover:text-accent">
+              <button onClick={onClose} aria-label="Close search" className="p-1 text-text-secondary hover:text-accent">
                 <X size={20} />
               </button>
             </div>
@@ -93,7 +95,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                           <button
                             key={r}
                             onClick={() => setQuery(r)}
-                            className="border border-line px-3 py-1.5 text-sm text-ink-soft hover:border-accent hover:text-accent"
+                            className="border border-border px-3 py-1.5 text-sm text-text-secondary hover:border-accent hover:text-accent"
                           >
                             {r}
                           </button>
@@ -109,7 +111,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                           key={c.slug}
                           to={`/category/${c.slug}`}
                           onClick={onClose}
-                          className="border border-line px-3 py-1.5 text-sm text-ink-soft hover:border-accent hover:text-accent"
+                          className="border border-border px-3 py-1.5 text-sm text-text-secondary hover:border-accent hover:text-accent"
                         >
                           {c.name}
                         </Link>
@@ -118,7 +120,7 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                   </div>
                 </div>
               ) : results.length === 0 ? (
-                <p className="py-10 text-center text-sm text-muted">
+                <p className="py-10 text-center text-sm text-text-tertiary">
                   Nothing matches “{query}.” Try a category or brand name.
                 </p>
               ) : (
@@ -134,14 +136,14 @@ export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
                         commitSearch(p.name)
                         onClose()
                       }}
-                      className="flex items-center gap-4 border-b border-line py-3 last:border-none"
+                      className="flex items-center gap-4 border-b border-border py-3 last:border-none"
                     >
                       <ProductArt art={p.art} color={p.artColor} className="h-14 w-14 shrink-0" />
                       <div className="min-w-0 flex-1">
                         <p className="eyebrow">{p.brand}</p>
-                        <p className="truncate font-display text-[15px]">{p.name}</p>
+                        <p className="truncate font-display text-[15px] text-text">{p.name}</p>
                       </div>
-                      <p className="shrink-0 font-mono text-sm">${p.price.toFixed(2)}</p>
+                      <p className="shrink-0 font-mono text-accent">${p.price.toFixed(2)}</p>
                     </Link>
                   ))}
                 </div>

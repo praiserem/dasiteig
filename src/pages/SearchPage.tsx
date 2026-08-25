@@ -3,6 +3,7 @@ import { useSearchParams } from 'react-router-dom'
 import { Search } from 'lucide-react'
 import { products } from '../data/products'
 import { ProductCard } from '../components/ProductCard'
+import { Input } from '../components/ui/input'
 
 export function SearchPage() {
   const [params] = useSearchParams()
@@ -26,17 +27,19 @@ export function SearchPage() {
   return (
     <div className="shell py-12 lg:py-16">
       <p className="eyebrow mb-3">Full catalog</p>
-      <h1 className="font-display text-3xl font-semibold tracking-tightest sm:text-4xl">
+      <h1 className="font-display text-3xl font-medium tracking-tighter sm:text-4xl text-text">
         All products.
       </h1>
-      <div className="mt-6 flex max-w-md items-center gap-3 border border-line px-4 py-3">
-        <Search size={16} className="text-muted" />
-        <input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Filter by name, brand, or category"
-          className="w-full bg-transparent text-sm focus:outline-none"
-        />
+      <div className="mt-6 max-w-md">
+        <div className="relative">
+          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
+          <Input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="Filter by name, brand, or category"
+            className="pl-10"
+          />
+        </div>
       </div>
 
       <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
@@ -45,7 +48,7 @@ export function SearchPage() {
         ))}
       </div>
       {results.length === 0 && (
-        <p className="mt-10 text-center text-sm text-muted">Nothing matches that filter.</p>
+        <p className="mt-10 text-center text-sm text-text-tertiary">Nothing matches that filter.</p>
       )}
     </div>
   )

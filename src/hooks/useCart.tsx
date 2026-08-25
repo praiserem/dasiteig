@@ -10,6 +10,7 @@ export interface CartLine {
   artColor: string
   variant: string
   quantity: number
+  stock: number
 }
 
 interface CartContextValue {
@@ -20,12 +21,13 @@ interface CartContextValue {
   addToCart: (product: Product, variant: string, quantity?: number) => void
   removeLine: (slug: string, variant: string) => void
   setQuantity: (slug: string, variant: string, quantity: number) => void
+  clearCart: () => void
   subtotal: number
   itemCount: number
 }
 
 const CartContext = createContext<CartContextValue | undefined>(undefined)
-const STORAGE_KEY = 'kept-cart-v1'
+const STORAGE_KEY = 'kept-cart-v2'
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const [lines, setLines] = useState<CartLine[]>(() => {
@@ -50,9 +52,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     setLines((prev) => {
       const existing = prev.find((l) => l.slug === product.slug && l.variant === variant)
       if (existing) {
+        const newQty = existing.quantity + quantity
+        const maxStock = existing.stock
         return prev.map((l) =>
           l.slug === product.slug && l.variant === variant
-            ? { ...l, quantity: l.quantity + quantity }
+            ? { ...l, quantity: Math.min(newQty, maxStock) }
             : l,
         )
       }
@@ -67,6 +71,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           artColor: product.artColor,
           variant,
           quantity,
+          stock: product.stockQuantity,
         },
       ]
     })
@@ -87,6 +92,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     )
   }
 
+  const clearCart = () => setLines([])
+
   const subtotal = useMemo(() => lines.reduce((sum, l) => sum + l.price * l.quantity, 0), [lines])
   const itemCount = useMemo(() => lines.reduce((sum, l) => sum + l.quantity, 0), [lines])
 
@@ -98,6 +105,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     addToCart,
     removeLine,
     setQuantity,
+    clearCart,
     subtotal,
     itemCount,
   }

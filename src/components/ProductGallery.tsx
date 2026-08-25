@@ -8,25 +8,26 @@ interface ProductGalleryProps {
 }
 
 export function ProductGallery({ art, color }: ProductGalleryProps) {
-  const shots = [0, 1, 2, 3]
   const [active, setActive] = useState(0)
 
   return (
     <div className="flex flex-col-reverse gap-3 sm:flex-row">
       <div className="flex shrink-0 gap-2 sm:flex-col">
-        {shots.map((i) => (
+        {[0, 1, 2, 3].map((i) => (
           <button
             key={i}
             onClick={() => setActive(i)}
-            className={`h-16 w-16 shrink-0 border transition-colors duration-200 ${
-              active === i ? 'border-ink' : 'border-line hover:border-line-strong'
+            className={`relative h-16 w-16 shrink-0 rounded-md border transition-all duration-200 ${
+              active === i
+                ? 'border-accent ring-2 ring-accent/20'
+                : 'border-border hover:border-text-tertiary'
             }`}
           >
-            <ProductArt art={art} color={color} className="h-full w-full" />
+            <ProductArt art={art} color={color} className="h-full w-full rounded-md" />
           </button>
         ))}
       </div>
-      <div className="relative flex-1 overflow-hidden border border-line">
+      <div className="relative flex-1 overflow-hidden rounded-xl border border-border bg-modal">
         <AnimatePresence mode="wait">
           <motion.div
             key={active}

@@ -1,4 +1,4 @@
-import { AnimatePresence, motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { navCategories } from '../data/categories'
@@ -18,7 +18,7 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-50 bg-ink/40"
+            className="fixed inset-0 z-50 bg-black/50"
             onClick={onClose}
           />
           <motion.div
@@ -26,13 +26,11 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-            className="fixed inset-y-0 left-0 z-50 flex w-[86%] max-w-sm flex-col bg-paper shadow-drawer"
+            className="fixed inset-y-0 left-0 z-50 flex w-[86%] max-w-sm flex-col border-r border-border bg-nav-bg"
           >
-            <div className="flex h-16 items-center justify-between border-b border-line px-5">
-              <span className="font-display text-lg font-semibold tracking-tightest">
-                KEPT<span className="text-accent">.</span>
-              </span>
-              <button onClick={onClose} aria-label="Close menu" className="p-2 text-ink hover:text-accent">
+            <div className="flex h-16 items-center justify-between border-b border-border px-5">
+              <span className="font-display text-lg font-semibold text-text">KEPT</span>
+              <button onClick={onClose} aria-label="Close menu" className="p-2 text-text-secondary hover:text-accent">
                 <X size={20} />
               </button>
             </div>
@@ -47,22 +45,22 @@ export function MobileMenu({ isOpen, onClose }: MobileMenuProps) {
                   <Link
                     to={`/category/${c.slug}`}
                     onClick={onClose}
-                    className="flex items-center justify-between border-b border-line px-5 py-4 font-display text-lg font-medium"
+                    className="border-b border-border px-5 py-4 font-display text-lg font-medium text-text-secondary hover:text-text"
                   >
                     {c.name}
                   </Link>
                 </motion.div>
               ))}
             </nav>
-            <div className="flex flex-col gap-1 border-t border-line px-5 py-5 text-[13px] uppercase tracking-wideish text-muted">
-              <Link to="/reviews" onClick={onClose} className="py-2">
-                Reviews
+            <div className="flex flex-col gap-1 border-t border-border px-5 py-5 text-[13px] uppercase tracking-wide text-text-tertiary">
+              <Link to="/about" onClick={onClose} className="py-2 hover:text-accent">
+                About
               </Link>
-              <Link to="/account" onClick={onClose} className="py-2">
-                Account
-              </Link>
-              <Link to="/contact" onClick={onClose} className="py-2">
+              <Link to="/contact" onClick={onClose} className="py-2 hover:text-accent">
                 Support
+              </Link>
+              <Link to="/account" onClick={onClose} className="py-2 hover:text-accent">
+                Account
               </Link>
             </div>
           </motion.div>

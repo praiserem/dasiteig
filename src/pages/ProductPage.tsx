@@ -5,6 +5,8 @@ import { getProduct, products } from '../data/products'
 import { ProductGallery } from '../components/ProductGallery'
 import { ProductCard } from '../components/ProductCard'
 import { useCart } from '../hooks/useCart'
+import { StockBadge } from '../components/ui/stockBadge'
+import { Button } from '../components/ui/button'
 
 const tabs = ['Description', 'Specifications', 'Reviews', 'FAQ'] as const
 type Tab = (typeof tabs)[number]
@@ -28,7 +30,7 @@ export function ProductPage() {
   if (!product) {
     return (
       <div className="shell py-24 text-center">
-        <p className="font-display text-2xl">We couldn't find that product.</p>
+        <p className="font-display text-2xl text-text">We couldn't find that product.</p>
         <Link to="/" className="link-underline mt-4 inline-block text-sm">
           Back to shop
         </Link>
@@ -36,9 +38,11 @@ export function ProductPage() {
     )
   }
 
+  const isOutOfStock = product.status === 'OUT_OF_STOCK'
+
   return (
     <div className="shell py-10 lg:py-14">
-      <nav className="mb-8 text-[13px] text-muted">
+      <nav className="mb-8 text-[13px] text-text-tertiary">
         <Link to="/" className="hover:text-accent">
           Home
         </Link>
@@ -47,7 +51,7 @@ export function ProductPage() {
           {product.category}
         </Link>
         {' / '}
-        <span className="text-ink-soft">{product.name}</span>
+        <span className="text-text-secondary">{product.name}</span>
       </nav>
 
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
@@ -55,7 +59,7 @@ export function ProductPage() {
 
         <div>
           <p className="eyebrow">{product.brand}</p>
-          <h1 className="mt-2 font-display text-3xl font-semibold tracking-tightest sm:text-4xl">
+          <h1 className="mt-2 font-display text-3xl font-medium tracking-tighter sm:text-4xl text-text">
             {product.name}
           </h1>
 
@@ -70,38 +74,45 @@ export function ProductPage() {
                 />
               ))}
             </div>
-            <span className="text-[13px] text-muted">
+            <span className="text-[13px] text-text-tertiary">
               {product.rating.toFixed(1)} ({product.reviewCount} reviews)
             </span>
           </div>
 
-          <p className="mt-5 font-mono text-2xl">
-            ${product.price.toFixed(2)}
-            {product.compareAt && (
-              <span className="ml-3 text-base text-muted line-through">
-                ${product.compareAt.toFixed(2)}
-              </span>
-            )}
-          </p>
+          <div className="mt-5 flex items-center gap-3">
+            <p className="font-mono text-2xl text-text">
+              ${product.price.toFixed(2)}
+              {product.compareAt && (
+                <span className="ml-3 text-base text-text-tertiary line-through">
+                  ${product.compareAt.toFixed(2)}
+                </span>
+              )}
+            </p>
+            <StockBadge status={product.status} />
+          </div>
 
-          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-ink-soft">
+          {product.sku && (
+            <p className="mt-2 font-mono text-[12px] text-text-tertiary">SKU: {product.sku}</p>
+          )}
+
+          <p className="mt-5 max-w-md text-[15px] leading-relaxed text-text-secondary">
             {product.description}
           </p>
 
           <div className="mt-7">
             <p className="eyebrow mb-2.5">
-              {product.variantKind}: <span className="text-ink-soft">{variant}</span>
+              {product.variantKind}: <span className="text-text-secondary">{variant}</span>
             </p>
             <div className="flex flex-wrap gap-2">
               {product.variants.map((v) => (
                 <button
                   key={v.label}
                   onClick={() => setVariant(v.label)}
-                  className={`flex items-center gap-2 border px-3.5 py-2 text-[13px] transition-colors duration-200 ${
+                  className={`flex items-center gap-2 rounded-md border px-3.5 py-2 text-[13px] transition-colors duration-200 ${
                     variant === v.label
-                      ? 'border-ink bg-ink text-paper'
-                      : 'border-line text-ink-soft hover:border-ink'
-                  }`}
+                      ? 'border-accent bg-accent/10 text-accent'
+                      : 'border-border text-text-tertiary hover:border-accent'
+                  }}`}
                 >
                   {v.swatch && (
                     <span
@@ -116,51 +127,55 @@ export function ProductPage() {
           </div>
 
           <div className="mt-7 flex items-center gap-3">
-            <div className="flex items-center border border-line">
+            <div className="flex items-center rounded-md border border-border">
               <button
                 onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                className="p-3 text-ink hover:text-accent"
+                className="p-3 text-text-secondary hover:text-accent"
                 aria-label="Decrease quantity"
+                disabled={isOutOfStock}
               >
                 <Minus size={14} />
               </button>
-              <span className="w-8 text-center text-sm">{quantity}</span>
+              <span className="w-8 text-center text-sm text-text">{quantity}</span>
               <button
                 onClick={() => setQuantity((q) => q + 1)}
-                className="p-3 text-ink hover:text-accent"
+                className="p-3 text-text-secondary hover:text-accent"
                 aria-label="Increase quantity"
+                disabled={isOutOfStock}
               >
                 <Plus size={14} />
               </button>
             </div>
-            <button
-              onClick={() => addToCart(product, variant, quantity)}
-              className="btn-primary flex-1"
+            <Button
+              variant={isOutOfStock ? 'secondary' : 'primary'}
+              className="flex-1"
+              disabled={isOutOfStock}
+              onClick={() => !isOutOfStock && addToCart(product, variant, quantity)}
             >
-              Add to cart — ${(product.price * quantity).toFixed(2)}
-            </button>
+              {isOutOfStock ? 'Out of stock' : `Add to cart — $${(product.price * quantity).toFixed(2)}`}
+            </Button>
           </div>
 
-          <div className="mt-5 flex items-center gap-2 border border-line px-4 py-3 text-[13px] text-ink-soft">
+          <div className="mt-5 flex items-center gap-2 rounded-md border border-border px-4 py-3 text-[13px] text-text-secondary">
             <Truck size={16} className="shrink-0 text-accent" />
             {product.shipping}
           </div>
 
-          <div className="mt-10 border-t border-line">
-            <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-line">
+          <div className="mt-10 border-t border-border">
+            <div className="flex flex-wrap gap-x-6 gap-y-2 border-b border-border">
               {tabs.map((t) => (
                 <button
                   key={t}
                   onClick={() => setTab(t)}
-                  className={`border-b-2 py-3 text-[13px] font-medium uppercase tracking-wideish transition-colors duration-200 ${
-                    tab === t ? 'border-accent text-ink' : 'border-transparent text-muted hover:text-ink'
+                  className={`border-b-2 py-3 text-[13px] font-medium uppercase tracking-wide transition-colors duration-200 ${
+                    tab === t ? 'border-accent text-text' : 'border-transparent text-text-secondary hover:text-text'
                   }`}
                 >
                   {t}
                 </button>
               ))}
             </div>
-            <div className="py-6 text-[14px] leading-relaxed text-ink-soft">
+            <div className="py-6 text-[14px] leading-relaxed text-text-secondary">
               {tab === 'Description' && (
                 <ul className="space-y-2">
                   {product.details.map((d) => (
@@ -172,11 +187,11 @@ export function ProductPage() {
                 </ul>
               )}
               {tab === 'Specifications' && (
-                <dl className="divide-y divide-line">
+                <dl className="divide-y divide-border">
                   {product.specs.map((s) => (
                     <div key={s.label} className="flex justify-between py-2.5">
-                      <dt className="text-muted">{s.label}</dt>
-                      <dd className="font-mono text-ink">{s.value}</dd>
+                      <dt className="text-text-tertiary">{s.label}</dt>
+                      <dd className="font-mono text-text">{s.value}</dd>
                     </div>
                   ))}
                 </dl>
@@ -199,9 +214,9 @@ export function ProductPage() {
       </div>
 
       {related.length > 0 && (
-        <div className="mt-20 border-t border-line pt-12">
+        <div className="mt-20 border-t border-border pt-12">
           <p className="eyebrow mb-3">You might also like</p>
-          <h2 className="mb-8 font-display text-2xl font-semibold tracking-tightest">
+          <h2 className="mb-8 font-display text-2xl font-medium tracking-tighter text-text">
             More from {product.category}.
           </h2>
           <div className="grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-4">

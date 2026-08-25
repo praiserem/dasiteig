@@ -4,23 +4,19 @@ interface ProductArtProps {
   className?: string
 }
 
-// Original, code-drawn studio illustrations. No photography, no external
-// assets — each product renders as a simple line drawing over a paper
-// backdrop with a soft contact shadow, in the spirit of clean studio
-// product photography without reproducing any reference imagery.
 export function ProductArt({ art, color, className }: ProductArtProps) {
   return (
-    <div className={`relative flex items-center justify-center overflow-hidden bg-paper ${className ?? ''}`}>
+    <div className={`relative flex items-center justify-center overflow-hidden bg-modal ${className ?? ''}`}>
       <div
-        className="absolute inset-0 opacity-[0.05]"
+        className="absolute inset-0 opacity-[0.04]"
         style={{
           backgroundImage: `radial-gradient(${color} 1px, transparent 1px)`,
           backgroundSize: '18px 18px',
         }}
       />
       <svg viewBox="0 0 240 240" className="relative h-[70%] w-[70%]" fill="none">
-        <ellipse cx="120" cy="205" rx="62" ry="9" fill="#1C1A16" opacity="0.08" />
-        <g stroke="#1C1A16" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round">
+        <ellipse cx="120" cy="205" rx="62" ry="9" fill="#0b0b0e" opacity="0.4" />
+        <g stroke="#5F5F69" strokeWidth="2" strokeLinejoin="round" strokeLinecap="round">
           {renderArt(art, color)}
         </g>
       </svg>
@@ -95,7 +91,7 @@ function renderArt(art: string, color: string) {
           <rect x="66" y="95" width="108" height="88" rx="4" fill={color} fillOpacity="0.85" />
           <path d="M66 122 Q120 145 174 122" fill="none" />
           <path d="M80 95 L60 45 M160 95 L180 45" />
-          <circle cx="120" cy="118" r="4" fill="#1C1A16" />
+          <circle cx="120" cy="118" r="4" fill="#0b0b0e" />
         </>
       )
     case 'lamp':
@@ -105,8 +101,8 @@ function renderArt(art: string, color: string) {
           <path d="M120 180 V120" />
           <path d="M120 120 L162 96" />
           <path d="M162 96 L150 62 L200 74 Z" fill={color} fillOpacity="0.85" />
-          <circle cx="120" cy="180" r="6" fill="#1C1A16" />
-          <circle cx="120" cy="120" r="6" fill="#1C1A16" />
+          <circle cx="120" cy="180" r="6" fill="#0b0b0e" />
+          <circle cx="120" cy="120" r="6" fill="#0b0b0e" />
         </>
       )
     case 'sunglasses':
