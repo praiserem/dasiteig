@@ -39,7 +39,7 @@ export function Footer() {
       <div className="shell grid grid-cols-2 gap-10 py-14 sm:grid-cols-4 lg:grid-cols-5 lg:py-20">
         <div className="col-span-2 lg:col-span-2">
           <p className="font-display text-2xl font-semibold tracking-tightest">
-            KEPT<span className="text-accent">.</span>
+            KEPT<span className="text-white/50">.</span>
           </p>
           <p className="mt-4 max-w-xs text-[14px] leading-relaxed text-white/60">
             Everyday goods, kept well. A small general store for objects that outlast their
@@ -49,14 +49,14 @@ export function Footer() {
             <a
               href="#"
               aria-label="Instagram"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-200 hover:border-accent hover:text-accent"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors duration-200 hover:border-white hover:text-white"
             >
               <Instagram size={16} />
             </a>
             <a
               href="mailto:hello@kept.shop"
               aria-label="Email"
-              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-200 hover:border-accent hover:text-accent"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/20 text-white/70 transition-colors duration-200 hover:border-white hover:text-white"
             >
               <Mail size={16} />
             </a>
@@ -71,7 +71,7 @@ export function Footer() {
                 <li key={l.label}>
                   <Link
                     to={l.href}
-                    className="text-[14px] text-white/75 transition-colors duration-200 hover:text-accent"
+                    className="text-[14px] text-white/75 transition-colors duration-200 hover:text-white"
                   >
                     {l.label}
                   </Link>
