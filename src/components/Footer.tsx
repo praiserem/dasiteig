@@ -45,12 +45,20 @@ export function Footer() {
             Everyday goods, kept well. A small general store for objects that outlast their
             trend cycle.
           </p>
-          <div className="mt-6 flex items-center gap-4">
-            <a href="#" aria-label="Instagram" className="text-white/70 hover:text-accent">
-              <Instagram size={18} />
+          <div className="mt-6 flex items-center gap-3">
+            <a
+              href="#"
+              aria-label="Instagram"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-200 hover:border-accent hover:text-accent"
+            >
+              <Instagram size={16} />
             </a>
-            <a href="mailto:hello@kept.shop" aria-label="Email" className="text-white/70 hover:text-accent">
-              <Mail size={18} />
+            <a
+              href="mailto:hello@kept.shop"
+              aria-label="Email"
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition-colors duration-200 hover:border-accent hover:text-accent"
+            >
+              <Mail size={16} />
             </a>
           </div>
         </div>
@@ -61,7 +69,10 @@ export function Footer() {
             <ul className="mt-4 space-y-2.5">
               {col.links.map((l) => (
                 <li key={l.label}>
-                  <Link to={l.href} className="text-[14px] text-white/80 hover:text-accent">
+                  <Link
+                    to={l.href}
+                    className="text-[14px] text-white/75 transition-colors duration-200 hover:text-accent"
+                  >
                     {l.label}
                   </Link>
                 </li>

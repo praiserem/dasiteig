@@ -12,7 +12,7 @@ const trustPoints = [
 export function Hero() {
   return (
     <section className="border-b border-line">
-      <div className="shell grid grid-cols-1 gap-10 py-12 lg:grid-cols-12 lg:gap-8 lg:py-20">
+      <div className="shell grid grid-cols-1 gap-12 py-12 lg:grid-cols-12 lg:gap-10 lg:py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -39,7 +39,9 @@ export function Hero() {
           <div className="mt-10 grid grid-cols-3 gap-4 border-t border-line pt-6">
             {trustPoints.map(({ icon: Icon, label }) => (
               <div key={label} className="flex flex-col items-start gap-2">
-                <Icon size={18} className="text-accent" strokeWidth={1.75} />
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-accent-tint/70">
+                  <Icon size={15} className="text-accent" strokeWidth={1.75} />
+                </span>
                 <span className="text-[12px] leading-snug text-muted">{label}</span>
               </div>
             ))}
@@ -53,13 +55,13 @@ export function Hero() {
           className="relative lg:col-span-7"
         >
           <div className="grid h-full grid-cols-2 gap-3 sm:grid-cols-3">
-            <ProductArt art="tote" color="#C9BFA6" className="col-span-2 aspect-[4/3] sm:col-span-2 sm:aspect-auto sm:row-span-2" />
-            <ProductArt art="beanie" color="#B75A32" className="aspect-square" />
-            <ProductArt art="torch" color="#3A362E" className="aspect-square" />
-            <ProductArt art="multitool" color="#8A8377" className="aspect-square" />
-            <ProductArt art="mug" color="#B7B7AE" className="col-span-2 aspect-[2/1] sm:col-span-1 sm:aspect-square" />
+            <ProductArt art="tote" color="#C9BFA6" className="col-span-2 aspect-[4/3] rounded-lg shadow-card sm:col-span-2 sm:aspect-auto sm:row-span-2" />
+            <ProductArt art="beanie" color="#B75A32" className="aspect-square rounded-lg shadow-card" />
+            <ProductArt art="torch" color="#3A362E" className="aspect-square rounded-lg shadow-card" />
+            <ProductArt art="multitool" color="#8A8377" className="aspect-square rounded-lg shadow-card" />
+            <ProductArt art="mug" color="#B7B7AE" className="col-span-2 aspect-[2/1] rounded-lg shadow-card sm:col-span-1 sm:aspect-square" />
           </div>
-          <span className="absolute -bottom-3 left-3 border border-line bg-paper px-3 py-1 font-mono text-[11px] uppercase tracking-wideish text-muted sm:left-6">
+          <span className="absolute -bottom-3 left-4 rounded-full border border-line bg-paper px-3.5 py-1.5 font-mono text-[11px] uppercase tracking-wideish text-muted shadow-card sm:left-6">
             This week on the shelf
           </span>
         </motion.div>
