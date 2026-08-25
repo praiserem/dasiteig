@@ -30,6 +30,7 @@ export interface Product {
   rating?: number
   reviewCount?: number
   imageUrl?: string | null
+  visible?: boolean
   createdAt?: string
   updatedAt?: string
   status: StockStatus

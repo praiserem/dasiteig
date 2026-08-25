@@ -5,9 +5,8 @@ const columns = [
     title: 'Shop',
     links: [
       { label: 'All products', href: '/search' },
-      { label: 'New arrivals', href: 'category/new' },
+      { label: 'New arrivals', href: '/category/new' },
       { label: 'Best sellers', href: '/category/best-sellers' },
-      { label: 'Bundles', href: '/bundles' },
     ],
   },
   {
@@ -23,16 +22,10 @@ const columns = [
     title: 'Company',
     links: [
       { label: 'About', href: '/about' },
-      { label: 'Journal', href: '/journal' },
-      { label: 'Reviews', href: '/reviews' },
       { label: 'Privacy', href: '/privacy' },
       { label: 'Terms', href: '/terms' },
     ],
   },
-]
-
-const socialLinks = [
-  { icon: 'ig', href: '#', label: 'Instagram' },
 ]
 
 export function Footer() {
@@ -47,18 +40,6 @@ export function Footer() {
             Everyday goods, kept well. A small general store for objects that outlast
             their trend cycle.
           </p>
-          <div className="mt-6 flex items-center gap-4">
-            <a href="#" aria-label="Instagram" className="text-text-secondary hover:text-accent">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <rect x="2" y="2" width="20" height="20" rx="5" />
-                <path d="M16 2v4" />
-                <path d="M8 2v4" />
-                <path d="M12 22c2.7 0 4.2-.8 5.2-1.8" />
-                <path d="M9 16c-1.2 0-2-.8-2-2" />
-                <circle cx="16" cy="7" r="1" />
-              </svg>
-            </a>
-          </div>
         </div>
 
         {columns.map((col) => (
@@ -80,7 +61,7 @@ export function Footer() {
       <div className="border-t border-border">
         <div className="shell flex flex-col items-center justify-between gap-3 py-6 text-[12px] text-text-tertiary sm:flex-row">
           <p>© {new Date().getFullYear()} KEPT General Goods. All rights reserved.</p>
-          <p>hello@kept.shop · Mon–Fri, 9am–5pm</p>
+          <p>hello@kept.shop</p>
         </div>
       </div>
     </footer>

@@ -1,19 +1,20 @@
 import { useMemo, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Minus, Plus, Star, Truck } from 'lucide-react'
-import { getProduct, products } from '../data/products'
+import { Minus, Plus, Truck } from 'lucide-react'
+import { useProducts } from '../hooks/useProducts'
 import { ProductGallery } from '../components/ProductGallery'
 import { ProductCard } from '../components/ProductCard'
 import { useCart } from '../hooks/useCart'
 import { StockBadge } from '../components/ui/stockBadge'
 import { Button } from '../components/ui/button'
 
-const tabs = ['Description', 'Specifications', 'Reviews', 'FAQ'] as const
+const tabs = ['Description', 'Specifications'] as const
 type Tab = (typeof tabs)[number]
 
 export function ProductPage() {
   const { slug } = useParams()
-  const product = slug ? getProduct(slug) : undefined
+  const { products, loading } = useProducts()
+  const product = slug ? products.find((p) => p.slug === slug) : undefined
   const [variant, setVariant] = useState(product?.variants[0]?.label ?? '')
   const [quantity, setQuantity] = useState(1)
   const [tab, setTab] = useState<Tab>('Description')
@@ -24,16 +25,34 @@ export function ProductPage() {
       product
         ? products.filter((p) => p.category === product.category && p.slug !== product.slug).slice(0, 4)
         : [],
-    [product],
+    [product, products],
   )
+
+  if (loading) {
+    return (
+      <div className="shell py-24">
+        <div className="animate-pulse space-y-4">
+          <div className="h-4 w-48 rounded bg-border/30" />
+          <div className="grid grid-cols-1 gap-12 lg:grid-cols-2">
+            <div className="aspect-square rounded-xl bg-border/30" />
+            <div className="space-y-4">
+              <div className="h-4 w-24 rounded bg-border/30" />
+              <div className="h-8 w-64 rounded bg-border/30" />
+              <div className="h-6 w-32 rounded bg-border/30" />
+              <div className="h-20 w-full rounded bg-border/30" />
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!product) {
     return (
       <div className="shell py-24 text-center">
-        <p className="font-display text-2xl text-text">We couldn't find that product.</p>
-        <Link to="/" className="link-underline mt-4 inline-block text-sm">
-          Back to shop
-        </Link>
+        <p className="font-display text-2xl text-text">Product not found.</p>
+        <p className="mt-2 text-text-secondary">It may have been removed or the link may be incorrect.</p>
+        <Link to="/" className="mt-6 inline-block text-sm text-accent hover:underline">Back to shop</Link>
       </div>
     )
   }
@@ -43,41 +62,21 @@ export function ProductPage() {
   return (
     <div className="shell py-10 lg:py-14">
       <nav className="mb-8 text-[13px] text-text-tertiary">
-        <Link to="/" className="hover:text-accent">
-          Home
-        </Link>
+        <Link to="/" className="hover:text-accent">Home</Link>
         {' / '}
-        <Link to={`/category/${product.category}`} className="capitalize hover:text-accent">
-          {product.category}
-        </Link>
+        <Link to={`/category/${product.category}`} className="capitalize hover:text-accent">{product.category}</Link>
         {' / '}
         <span className="text-text-secondary">{product.name}</span>
       </nav>
 
       <div className="grid grid-cols-1 gap-12 lg:grid-cols-2 lg:gap-16">
-        <ProductGallery art={product.art} color={product.artColor} />
+        <ProductGallery art={product.art} color={product.artColor} imageUrl={product.imageUrl} />
 
         <div>
           <p className="eyebrow">{product.brand}</p>
           <h1 className="mt-2 font-display text-3xl font-medium tracking-tighter sm:text-4xl text-text">
             {product.name}
           </h1>
-
-          <div className="mt-3 flex items-center gap-2">
-            <div className="flex items-center gap-0.5 text-accent">
-              {Array.from({ length: 5 }).map((_, i) => (
-                <Star
-                  key={i}
-                  size={14}
-                  fill={i < Math.round(product.rating) ? 'currentColor' : 'none'}
-                  strokeWidth={1.5}
-                />
-              ))}
-            </div>
-            <span className="text-[13px] text-text-tertiary">
-              {product.rating.toFixed(1)} ({product.reviewCount} reviews)
-            </span>
-          </div>
 
           <div className="mt-5 flex items-center gap-3">
             <p className="font-mono text-2xl text-text">
@@ -99,32 +98,31 @@ export function ProductPage() {
             {product.description}
           </p>
 
-          <div className="mt-7">
-            <p className="eyebrow mb-2.5">
-              {product.variantKind}: <span className="text-text-secondary">{variant}</span>
-            </p>
-            <div className="flex flex-wrap gap-2">
-              {product.variants.map((v) => (
-                <button
-                  key={v.label}
-                  onClick={() => setVariant(v.label)}
-                  className={`flex items-center gap-2 rounded-md border px-3.5 py-2 text-[13px] transition-colors duration-200 ${
-                    variant === v.label
-                      ? 'border-accent bg-accent/10 text-accent'
-                      : 'border-border text-text-tertiary hover:border-accent'
-                  }}`}
-                >
-                  {v.swatch && (
-                    <span
-                      className="h-3 w-3 rounded-full border border-black/10"
-                      style={{ backgroundColor: v.swatch }}
-                    />
-                  )}
-                  {v.label}
-                </button>
-              ))}
+          {product.variants.length > 0 && (
+            <div className="mt-7">
+              <p className="eyebrow mb-2.5">
+                {product.variantKind}: <span className="text-text-secondary">{variant}</span>
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {product.variants.map((v) => (
+                  <button
+                    key={v.label}
+                    onClick={() => setVariant(v.label)}
+                    className={`flex items-center gap-2 rounded-md border px-3.5 py-2 text-[13px] transition-colors duration-200 ${
+                      variant === v.label
+                        ? 'border-accent bg-accent/10 text-accent'
+                        : 'border-border text-text-tertiary hover:border-accent'
+                    }`}
+                  >
+                    {v.swatch && (
+                      <span className="h-3 w-3 rounded-full border border-black/10" style={{ backgroundColor: v.swatch }} />
+                    )}
+                    {v.label}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           <div className="mt-7 flex items-center gap-3">
             <div className="flex items-center rounded-md border border-border">
@@ -195,18 +193,6 @@ export function ProductPage() {
                     </div>
                   ))}
                 </dl>
-              )}
-              {tab === 'Reviews' && (
-                <p>
-                  {product.reviewCount} verified buyers rated this {product.rating.toFixed(1)} out
-                  of 5. Full reviews open after checkout confirmation.
-                </p>
-              )}
-              {tab === 'FAQ' && (
-                <p>
-                  Ships in 1–2 business days. 30-day returns on unused items. Reach support any
-                  weekday for sizing or fit questions.
-                </p>
               )}
             </div>
           </div>

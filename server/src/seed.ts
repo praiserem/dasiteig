@@ -376,9 +376,8 @@ async function main() {
       'OWNER',
     ])
     console.log(`Seeded ${products.length} products`)
-    console.log(`Owner account: ${ownerEmail} / password: ownerpassword123`)
+    console.log(`Owner account created: ${ownerEmail}`)
   } else {
-    console.log(`Seeded ${products.length} products`)
     console.log(`Owner account already exists: ${ownerEmail}`)
   }
 

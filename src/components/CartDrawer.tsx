@@ -2,7 +2,6 @@ import { AnimatePresence, motion } from 'framer-motion'
 import { Minus, Plus, X } from 'lucide-react'
 import { useCart } from '../hooks/useCart'
 import { ProductArt } from './ProductArt'
-import { Button } from './ui/button'
 
 export function CartDrawer() {
   const { lines, isOpen, closeCart, removeLine, setQuantity, subtotal } = useCart()
@@ -36,11 +35,9 @@ export function CartDrawer() {
               </button>
             </div>
 
-            {subtotal < 75 && (
+            {subtotal < 75 && lines.length > 0 && (
               <div className="border-b border-border bg-accent/10 px-5 py-3 text-[13px] text-text-secondary">
-                {lines.length === 0
-                  ? 'Free shipping on US orders over $75.'
-                  : `Add $${freeShippingLeft.toFixed(2)} more for free shipping.`}
+                {`Add $${freeShippingLeft.toFixed(2)} more for free shipping.`}
               </div>
             )}
 
@@ -103,10 +100,7 @@ export function CartDrawer() {
                   <span className="text-text-secondary">Subtotal</span>
                   <span className="text-text">${subtotal.toFixed(2)}</span>
                 </div>
-                <Button variant="primary" className="w-full" size="md">
-                  Checkout
-                </Button>
-                <p className="mt-3 text-center text-[12px] text-text-tertiary">
+                <p className="text-center text-[12px] text-text-tertiary">
                   Taxes and shipping calculated at checkout.
                 </p>
               </div>

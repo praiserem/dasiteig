@@ -17,7 +17,6 @@ export function Navbar({ onSearchOpen, onMenuOpen }: NavbarProps) {
   const navLinks = [
     { to: '/', label: 'Home', exact: true },
     ...navCategories.map((c) => ({ to: `/category/${c.slug}`, label: c.name, exact: false })),
-    { to: '/journal', label: 'Journal', exact: false },
   ]
 
   return (

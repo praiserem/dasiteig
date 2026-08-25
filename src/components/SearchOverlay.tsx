@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { Search, X } from 'lucide-react'
-import { products } from '../data/products'
+import { useProducts } from '../hooks/useProducts'
 import { navCategories } from '../data/categories'
 import { ProductArt } from './ProductArt'
 
@@ -16,6 +16,7 @@ const RECENT_KEY = 'kept-recent-searches'
 export function SearchOverlay({ isOpen, onClose }: SearchOverlayProps) {
   const [query, setQuery] = useState('')
   const [recent, setRecent] = useState<string[]>([])
+  const { products } = useProducts()
 
   useEffect(() => {
     if (isOpen) {

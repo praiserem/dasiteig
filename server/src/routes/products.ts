@@ -3,17 +3,22 @@ import { initDb, dbAll, dbGet, dbRun } from '../db'
 import { asyncHandler } from '../lib/asyncHandler'
 import { transformProduct } from '../lib/utils'
 
+function slugify(str: string): string {
+  return str.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')
+}
+
 export const productRoutes = {
   list: asyncHandler(async (req: Request, res: Response) => {
     await initDb()
+    const isOwner = (req as any).user?.role === 'OWNER'
+    const where = isOwner ? '' : 'WHERE visible = 1'
     const rows = await dbAll(
       `SELECT id, uuid, slug, brand, name, category, price, compare_at,
          art, art_color, variant_kind, variants, description, details, specs,
          shipping, sku, stock_quantity, low_stock_threshold, new_flag,
-         best_seller, rating, review_count, image_url, created_at, updated_at
-         FROM products ORDER BY created_at DESC`,
+         best_seller, rating, review_count, image_url, visible, created_at, updated_at
+         FROM products ${where} ORDER BY created_at DESC`,
     )
-
     const products = rows.map((p: any) => transformProduct(p))
     res.json({ products })
   }),
@@ -22,26 +27,18 @@ export const productRoutes = {
     await initDb()
     const { slug } = req.params
     const row = await dbGet('SELECT * FROM products WHERE slug = ?', [slug])
-
-    if (!row) {
-      return res.status(404).json({ error: 'Product not found' })
-    }
+    if (!row) return res.status(404).json({ error: 'Product not found' })
     res.json({ product: transformProduct(row) })
   }),
 
   create: asyncHandler(async (req: Request, res: Response) => {
     await initDb()
     const {
-      slug,
       brand,
       name,
       category,
       price,
       compareAt,
-      art = 'tote',
-      artColor = '#3A362E',
-      variantKind = 'COLORS',
-      variants = [],
       description,
       details = [],
       specs = [],
@@ -49,42 +46,35 @@ export const productRoutes = {
       sku,
       stockQuantity = 0,
       lowStockThreshold = 5,
+      visible = 1,
+      imageUrl,
     } = req.body
 
-    if (!slug || !brand || !name || !category || !price || !description) {
-      return res.status(400).json({ error: 'Required fields missing' })
+    if (!brand || !name || !category || !price || !description) {
+      return res.status(400).json({ error: 'Please fill in all required fields.' })
+    }
+    if (Number(price) < 0) {
+      return res.status(400).json({ error: 'Price cannot be negative.' })
+    }
+    if (Number(stockQuantity) < 0) {
+      return res.status(400).json({ error: 'Stock cannot be negative.' })
     }
 
+    let slug = req.body.slug || slugify(name)
     const existing = await dbGet('SELECT id FROM products WHERE slug = ?', [slug])
     if (existing) {
-      return res.status(409).json({ error: 'Product with this slug already exists' })
+      slug = `${slug}-${Date.now()}`
     }
 
     const result = await dbRun(
-      `INSERT INTO products (slug, brand, name, category, price, compare_at, art, art_color,
-       variant_kind, variants, description, details, specs, shipping, sku,
-       stock_quantity, low_stock_threshold, new_flag, best_seller)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      `INSERT INTO products (slug, brand, name, category, price, compare_at, description, details, specs,
+       shipping, sku, stock_quantity, low_stock_threshold, visible, image_url, new_flag, best_seller)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 0, 0)`,
       [
-        slug,
-        brand,
-        name,
-        category,
-        price,
-        compareAt || null,
-        art,
-        artColor,
-        variantKind,
-        JSON.stringify(variants),
-        description,
-        JSON.stringify(details),
-        JSON.stringify(specs),
-        shipping,
-        sku || null,
-        stockQuantity,
-        lowStockThreshold,
-        0,
-        0,
+        slug, brand, name, category, Number(price), compareAt ? Number(compareAt) : null,
+        description, JSON.stringify(details), JSON.stringify(specs),
+        shipping, sku || null, Number(stockQuantity), Number(lowStockThreshold),
+        visible ? 1 : 0, imageUrl || null,
       ],
     )
 
@@ -99,17 +89,16 @@ export const productRoutes = {
     const values: any[] = []
 
     const updatable = [
-      'slug', 'brand', 'name', 'category', 'price', 'compare_at', 'art', 'art_color',
-      'variant_kind', 'variants', 'description', 'details', 'specs', 'shipping',
-      'sku', 'stock_quantity', 'low_stock_threshold', 'new_flag', 'best_seller',
-      'rating', 'review_count', 'image_url',
+      'slug', 'brand', 'name', 'category', 'price', 'compare_at', 'description',
+      'details', 'specs', 'shipping', 'sku', 'stock_quantity', 'low_stock_threshold',
+      'new_flag', 'best_seller', 'image_url', 'visible',
     ]
 
     for (const key of updatable) {
       if (req.body[key] !== undefined) {
         fields.push(`${key} = ?`)
         values.push(
-          key === 'variants' || key === 'details' || key === 'specs'
+          key === 'details' || key === 'specs'
             ? JSON.stringify(req.body[key])
             : req.body[key],
         )

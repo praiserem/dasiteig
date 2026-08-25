@@ -23,6 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
           <ProductArt
             art={product.art}
             color={product.artColor}
+            imageUrl={product.imageUrl}
             className="aspect-square w-full transition-transform duration-500 ease-editorial group-hover:scale-[1.06]"
           />
         </div>

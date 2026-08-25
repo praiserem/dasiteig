@@ -91,12 +91,11 @@ export function initDb(): Promise<sqlite3.Database> {
         CREATE INDEX IF NOT EXISTS idx_inventory_user ON inventory_changes (user_id);
         `,
         (err) => {
-          if (err) {
-            reject(err)
-            return
-          }
+          if (err) { reject(err); return }
           db = dbInstance
-          resolve(dbInstance)
+          dbInstance.run(`ALTER TABLE products ADD COLUMN visible INTEGER NOT NULL DEFAULT 1`, (_err: any) => {
+            resolve(dbInstance)
+          })
         },
       )
     })

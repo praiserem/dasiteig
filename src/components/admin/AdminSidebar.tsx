@@ -1,14 +1,11 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { LayoutDashboard, Package, ShoppingCart, Users, BarChart3, Settings, LogOut } from 'lucide-react'
+import { LayoutDashboard, Package, ShoppingCart, LogOut } from 'lucide-react'
 import { useAuth } from '../../hooks/useAuth'
 
 const adminNav = [
   { id: 'overview', label: 'Overview', icon: LayoutDashboard, path: '/admin' },
-  { id: 'inventory', label: 'Inventory', icon: Package, path: '/admin/inventory' },
   { id: 'products', label: 'Products', icon: ShoppingCart, path: '/admin/products' },
-  { id: 'orders', label: 'Orders', icon: Users, path: '/admin/orders' },
-  { id: 'analytics', label: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
-  { id: 'settings', label: 'Settings', icon: Settings, path: '/admin/settings' },
+  { id: 'inventory', label: 'Inventory', icon: Package, path: '/admin/inventory' },
 ]
 
 export function AdminSidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolean; onMobileClose: () => void }) {
@@ -29,9 +26,7 @@ export function AdminSidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolea
         }`}
       >
         <div className="flex h-16 items-center justify-between border-b border-border px-5">
-          <Link to="/" className="font-display text-xl font-semibold text-text">
-            KEPT
-          </Link>
+          <Link to="/" className="font-display text-xl font-semibold text-text">KEPT</Link>
           <span className="font-mono text-[10px] uppercase tracking-wide text-accent">Admin</span>
         </div>
 
@@ -45,9 +40,7 @@ export function AdminSidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolea
                 to={item.path}
                 onClick={onMobileClose}
                 className={`flex items-center gap-3 px-4 py-2.5 text-[13px] font-medium transition-colors ${
-                  isActive
-                    ? 'bg-accent/10 text-accent'
-                    : 'text-text-secondary hover:bg-surface hover:text-text'
+                  isActive ? 'bg-accent/10 text-accent' : 'text-text-secondary hover:bg-surface hover:text-text'
                 }`}
               >
                 <Icon size={16} />
@@ -59,8 +52,10 @@ export function AdminSidebar({ mobileOpen, onMobileClose }: { mobileOpen: boolea
 
         <div className="border-t border-border p-4">
           <div className="mb-3 flex items-center gap-2">
-            <div className="h-6 w-6 rounded-full bg-accent/20" />
-            <span className="text-sm text-text">{user?.name || user?.email}</span>
+            <div className="flex h-6 w-6 items-center justify-center rounded-full bg-accent/20 text-[10px] font-medium text-accent">
+              {(user?.name || user?.email || '?')[0].toUpperCase()}
+            </div>
+            <span className="text-sm text-text truncate">{user?.name || user?.email}</span>
           </div>
           <button
             onClick={handleLogout}

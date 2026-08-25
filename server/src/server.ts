@@ -3,7 +3,9 @@ import cors from 'cors'
 import cookieParser from 'cookie-parser'
 import dotenv from 'dotenv'
 import path from 'node:path'
-import { initDb, dbGet, dbRun } from './db'
+import fs from 'node:fs'
+import crypto from 'node:crypto'
+import { initDb, dbGet, dbRun, dbAll } from './db'
 import { requireAuth, requireRole } from './middleware/auth'
 import { authRoutes } from './routes/auth'
 import { productRoutes } from './routes/products'
@@ -13,12 +15,13 @@ import type { Request, Response, NextFunction } from 'express'
 
 dotenv.config()
 
-if (!process.env.JWT_SECRET) {
-  process.env.JWT_SECRET = 'dev-secret-change-in-production'
-}
-
 const app = express()
 const PORT = process.env.PORT || 3001
+const UPLOAD_DIR = path.join(__dirname, '..', '..', 'uploads')
+
+if (!fs.existsSync(UPLOAD_DIR)) {
+  fs.mkdirSync(UPLOAD_DIR, { recursive: true })
+}
 
 app.use(
   cors({
@@ -31,8 +34,9 @@ app.use(
 )
 app.use(express.json({ limit: '10mb' }))
 app.use(cookieParser())
+app.use('/uploads', express.static(UPLOAD_DIR))
 
-initDb().catch(console.error)
+initDb()
 
 app.post('/api/auth/signup', authRoutes.signup)
 app.post('/api/auth/login', authRoutes.login)
@@ -40,6 +44,19 @@ app.post('/api/auth/logout', authRoutes.logout)
 
 app.get('/api/products', productRoutes.list)
 app.get('/api/products/:slug', productRoutes.get)
+app.get('/api/stats', requireAuth, requireRole('OWNER'), asyncHandlerRoute(async (req: Request, res: Response) => {
+  const products = await dbAll('SELECT stock_quantity, low_stock_threshold, price FROM products')
+  const users = await dbAll('SELECT COUNT(*) as count FROM users')
+  const history = await dbAll(`SELECT ic.*, p.name as product_name FROM inventory_changes ic LEFT JOIN products p ON ic.product_id = p.id ORDER BY ic.created_at DESC LIMIT 10`)
+
+  const totalProducts = products.length
+  const totalStock = products.reduce((sum: number, p: any) => sum + p.stock_quantity, 0)
+  const lowStock = products.filter((p: any) => p.stock_quantity > 0 && p.stock_quantity <= p.low_stock_threshold).length
+  const outOfStock = products.filter((p: any) => p.stock_quantity === 0).length
+  const totalUsers = (users[0] as any)?.count || 0
+
+  res.json({ stats: { totalProducts, totalStock, lowStock, outOfStock, totalUsers }, recentActivity: history })
+}))
 
 app.use(requireAuth)
 
@@ -47,6 +64,27 @@ app.get('/api/auth/session', authRoutes.session)
 app.post('/api/products', requireRole('OWNER'), productRoutes.create)
 app.put('/api/products/:id', requireRole('OWNER'), productRoutes.update)
 app.delete('/api/products/:id', requireRole('OWNER'), productRoutes.remove)
+
+app.post('/api/upload', requireRole('OWNER'), (req: Request, res: Response) => {
+  const chunks: Buffer[] = []
+  req.on('data', (chunk: Buffer) => chunks.push(chunk))
+  req.on('end', () => {
+    const contentType = req.headers['content-type'] || ''
+    let ext = 'jpg'
+    if (contentType.includes('png')) ext = 'png'
+    else if (contentType.includes('webp')) ext = 'webp'
+    else if (contentType.includes('gif')) ext = 'gif'
+
+    const filename = `${crypto.randomUUID()}.${ext}`
+    const filepath = path.join(UPLOAD_DIR, filename)
+    fs.writeFileSync(filepath, Buffer.concat(chunks))
+    const url = `/uploads/${filename}`
+    res.json({ url })
+  })
+  req.on('error', () => {
+    res.status(500).json({ error: 'Upload failed' })
+  })
+})
 
 app.get('/api/inventory/history', requireRole('OWNER'), inventoryRoutes.history)
 app.post('/api/inventory/:id/adjust', requireRole('OWNER'), inventoryRoutes.adjust)
@@ -101,8 +139,6 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`)
-})
+app.listen(PORT, () => {})
 
 export default app

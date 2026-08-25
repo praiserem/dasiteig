@@ -1,14 +1,16 @@
 import { useMemo, useState } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Search } from 'lucide-react'
-import { products } from '../data/products'
+import { useProducts } from '../hooks/useProducts'
 import { ProductCard } from '../components/ProductCard'
 import { Input } from '../components/ui/input'
+import { EmptyState } from '../components/ui/emptyState'
 
 export function SearchPage() {
   const [params] = useSearchParams()
   const brandFilter = params.get('brand')
   const [query, setQuery] = useState('')
+  const { products } = useProducts()
 
   const results = useMemo(() => {
     let list = products
@@ -22,14 +24,12 @@ export function SearchPage() {
       )
     }
     return list
-  }, [query, brandFilter])
+  }, [products, query, brandFilter])
 
   return (
     <div className="shell py-12 lg:py-16">
       <p className="eyebrow mb-3">Full catalog</p>
-      <h1 className="font-display text-3xl font-medium tracking-tighter sm:text-4xl text-text">
-        All products.
-      </h1>
+      <h1 className="font-display text-3xl font-medium tracking-tighter sm:text-4xl text-text">All products.</h1>
       <div className="mt-6 max-w-md">
         <div className="relative">
           <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-text-tertiary" />
@@ -42,13 +42,19 @@ export function SearchPage() {
         </div>
       </div>
 
-      <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-        {results.map((p) => (
-          <ProductCard key={p.slug} product={p} />
-        ))}
-      </div>
-      {results.length === 0 && (
-        <p className="mt-10 text-center text-sm text-text-tertiary">Nothing matches that filter.</p>
+      {results.length === 0 ? (
+        <div className="mt-12">
+          <EmptyState
+            title={query ? `No results for "${query}"` : "No products yet"}
+            description={query ? "Try a different search term." : "Products will appear here once they're added."}
+          />
+        </div>
+      ) : (
+        <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+          {results.map((p) => (
+            <ProductCard key={p.slug} product={p} />
+          ))}
+        </div>
       )}
     </div>
   )

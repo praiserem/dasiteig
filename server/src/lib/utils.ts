@@ -40,6 +40,7 @@ export function transformProduct(p: any): Product {
     rating: p.rating,
     reviewCount: p.review_count,
     imageUrl: p.image_url,
+    visible: Boolean(p.visible),
     createdAt: p.created_at,
     updatedAt: p.updated_at,
     status: getStockStatus(p.stock_quantity, p.low_stock_threshold),

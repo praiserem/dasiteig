@@ -2,9 +2,18 @@ interface ProductArtProps {
   art: string
   color: string
   className?: string
+  imageUrl?: string | null
 }
 
-export function ProductArt({ art, color, className }: ProductArtProps) {
+export function ProductArt({ art, color, className, imageUrl }: ProductArtProps) {
+  if (imageUrl) {
+    return (
+      <div className={`relative overflow-hidden ${className ?? ''}`}>
+        <img src={imageUrl} alt="" className="h-full w-full object-cover" />
+      </div>
+    )
+  }
+
   return (
     <div className={`relative flex items-center justify-center overflow-hidden bg-modal ${className ?? ''}`}>
       <div

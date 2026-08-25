@@ -32,8 +32,8 @@ export function TrustSection() {
           ))}
         </div>
         <div className="mt-10">
-          <Link to="/reviews" className="link-underline text-[13px] font-medium uppercase tracking-wide">
-            Read our customer reviews
+        <Link to="/faq" className="link-underline text-[13px] font-medium uppercase tracking-wide">
+          Read our FAQ
           </Link>
         </div>
       </div>

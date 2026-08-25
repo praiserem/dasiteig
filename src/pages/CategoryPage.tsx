@@ -1,50 +1,62 @@
+import { useMemo } from 'react'
 import { useParams, Link } from 'react-router-dom'
-import { products } from '../data/products'
+import { useProducts } from '../hooks/useProducts'
 import { categories } from '../data/categories'
 import { ProductCard } from '../components/ProductCard'
+import { EmptyState } from '../components/ui/emptyState'
 
 export function CategoryPage() {
   const { slug } = useParams()
+  const { products, loading } = useProducts()
 
-  let title = 'Products'
-  let description = ''
-  let list = products
+  const category = categories.find((c) => c.slug === slug)
+  const isSpecial = slug === 'new' || slug === 'best-sellers'
 
-  if (slug === 'new') {
-    title = 'New arrivals'
-    description = 'The latest additions to the shelf.'
-    list = products.filter((p) => p.new)
-  } else if (slug === 'best-sellers') {
-    title = 'Best sellers'
-    description = 'What most people end up adding to their bag.'
-    list = products.filter((p) => p.bestSeller)
-  } else {
-    const category = categories.find((c) => c.slug === slug)
-    title = category?.name ?? 'Products'
-    description = category?.description ?? ''
-    list = products.filter((p) => p.category === slug)
-  }
+  const title = slug === 'new' ? 'New arrivals' : slug === 'best-sellers' ? 'Best sellers' : category?.name ?? 'Products'
+  const description = slug === 'new' ? 'The latest additions to the shelf.'
+    : slug === 'best-sellers' ? 'What most people end up adding to their bag.'
+    : category?.description ?? ''
+
+  const list = useMemo(() => {
+    if (slug === 'new') return products.filter((p) => p.new)
+    if (slug === 'best-sellers') return products.filter((p) => p.bestSeller)
+    return products.filter((p) => p.category === slug)
+  }, [products, slug])
 
   return (
     <div className="shell py-12 lg:py-16">
       <nav className="mb-6 text-[13px] text-text-tertiary">
-        <Link to="/" className="hover:text-accent">
-          Home
-        </Link>
+        <Link to="/" className="hover:text-accent">Home</Link>
         {' / '}
         <span className="text-text-secondary">{title}</span>
       </nav>
-      <p className="eyebrow mb-3">Shop by format</p>
+      {!isSpecial && <p className="eyebrow mb-3">Shop by format</p>}
       <h1 className="font-display text-3xl font-medium tracking-tighter sm:text-4xl text-text">{title}</h1>
       {description && <p className="mt-3 max-w-lg text-[15px] text-text-secondary">{description}</p>}
 
-      <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
-        {list.map((p) => (
-          <ProductCard key={p.slug} product={p} />
-        ))}
-      </div>
-      {list.length === 0 && (
-        <p className="mt-10 text-center text-sm text-text-tertiary">No products here yet — check back soon.</p>
+      {loading ? (
+        <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="animate-pulse space-y-3">
+              <div className="aspect-square rounded-xl bg-border/30" />
+              <div className="h-4 w-24 rounded bg-border/30" />
+              <div className="h-5 w-36 rounded bg-border/30" />
+            </div>
+          ))}
+        </div>
+      ) : list.length === 0 ? (
+        <div className="mt-12">
+          <EmptyState
+            title="No products here yet"
+            description={isSpecial ? "Products will appear here as they're added." : "No products in this category yet."}
+          />
+        </div>
+      ) : (
+        <div className="mt-10 grid grid-cols-2 gap-x-5 gap-y-10 sm:grid-cols-3 lg:grid-cols-4">
+          {list.map((p) => (
+            <ProductCard key={p.slug} product={p} />
+          ))}
+        </div>
       )}
     </div>
   )

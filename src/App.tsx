@@ -21,53 +21,35 @@ import { AdminProducts } from './pages/admin/AdminProducts'
 import { ProductForm } from './pages/admin/ProductForm'
 import { AdminInventory } from './pages/admin/AdminInventory'
 import { StockAdjustPage } from './pages/admin/StockAdjustPage'
-import { AdminOrders } from './pages/admin/AdminOrders'
-import { AdminPlaceholder } from './pages/admin/AdminPlaceholder'
 
 const staticPages: Record<string, { title: string; body: string }> = {
   '/about': {
     title: 'Our story.',
-    body: 'KEPT started as a folding table at a Sunday market — one canvas tote, one flashlight, and a spreadsheet. We still pick everything the same way: would we replace this with the same thing when it wears out? If yes, it goes on the shelf.',
+    body: 'KEPT started as a folding table at a Sunday market. We still pick everything the same way: would we replace this with the same thing when it wears out? If yes, it goes on the shelf.',
   },
   '/contact': {
     title: 'Get in touch.',
-    body: 'Email hello@kept.shop and a person answers, usually the same day. Phone support runs weekdays, 9am–5pm.',
+    body: 'Email hello@kept.shop and a person answers, usually the same day.',
   },
   '/faq': {
     title: 'Frequently asked questions.',
-    body: 'Shipping usually takes 3–5 business days after your order leaves the warehouse. Returns are accepted within 30 days on unused items in original packaging. Sizing charts are on every apparel product page under Specifications.',
+    body: 'Shipping usually takes 1–2 business days after your order leaves the warehouse. Returns are accepted within 30 days on unused items in original packaging.',
   },
   '/shipping': {
     title: 'Shipping.',
-    body: 'Free shipping on US orders over $75. Orders under $75 ship for a flat $6.50. Most orders leave the warehouse within two business days and arrive within a week.',
+    body: 'Free shipping on US orders over $75. Orders under $75 ship for a flat $6.50.',
   },
   '/returns': {
     title: 'Returns.',
-    body: 'You have 30 days from delivery to return unused items in original packaging for a full refund. Start a return from your account or by emailing hello@kept.shop with your order number.',
+    body: 'You have 30 days from delivery to return unused items in original packaging for a full refund.',
   },
   '/privacy': {
     title: 'Privacy.',
-    body: 'We collect only what is needed to fulfill and support your order. We do not sell customer data. Full policy available on request from hello@kept.shop.',
+    body: 'We collect only what is needed to fulfill and support your order. We do not sell customer data.',
   },
   '/terms': {
     title: 'Terms.',
-    body: 'By ordering from KEPT you agree to our standard terms of sale, including our returns and shipping policies outlined elsewhere on this site.',
-  },
-  '/reviews': {
-    title: 'Customer reviews.',
-    body: 'Every review on KEPT comes from a verified, paid order. We publish the good and the mixed ones — reviews only get removed if they violate our community guidelines.',
-  },
-  '/journal': {
-    title: 'The journal.',
-    body: 'Buying guides and comparisons, written by the same people who pick what goes on the shelf. New posts most weeks.',
-  },
-  '/bundles': {
-    title: 'Starter sets and bundles.',
-    body: 'Every bundle on KEPT pairs two things we already sell separately, at 15% off together. Bundles are on the homepage — full catalog coming soon.',
-  },
-  '/orders/lookup': {
-    title: 'Track your order.',
-    body: 'Enter your order number and email at checkout confirmation to see live tracking. Questions? Email hello@kept.shop with your order number.',
+    body: 'By ordering from KEPT you agree to our standard terms of sale, including our returns and shipping policies.',
   },
 }
 
@@ -107,22 +89,8 @@ export default function App() {
             <Route path="/search" element={<SearchPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route
-              path="/account"
-              element={
-                <RequireAuth>
-                  <AccountLayout />
-                </RequireAuth>
-              }
-            />
-            <Route
-              path="/account/:tab"
-              element={
-                <RequireAuth>
-                  <AccountLayout />
-                </RequireAuth>
-              }
-            />
+            <Route path="/account" element={<RequireAuth><AccountLayout /></RequireAuth>} />
+            <Route path="/account/:tab" element={<RequireAuth><AccountLayout /></RequireAuth>} />
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminOverview />} />
               <Route path="products" element={<AdminProducts />} />
@@ -130,24 +98,15 @@ export default function App() {
               <Route path="products/edit/:id" element={<ProductForm />} />
               <Route path="inventory" element={<AdminInventory />} />
               <Route path="inventory/adjust/:id" element={<StockAdjustPage />} />
-              <Route path="orders" element={<AdminOrders />} />
-              <Route path="analytics" element={<AdminPlaceholder title="Analytics" />} />
-              <Route path="settings" element={<AdminPlaceholder title="Settings" />} />
             </Route>
             {Object.entries(staticPages).map(([path, page]) => (
               <Route key={path} path={path} element={<StaticPage {...page} />} />
             ))}
-            <Route
-              path="*"
-              element={
-                <StaticPage title="Page not found." body="That page moved or never existed. Head back to the shop from the menu above." />
-              }
-            />
+            <Route path="*" element={<StaticPage title="Page not found." body="That page moved or never existed. Head back to the shop from the menu above." />} />
           </Routes>
         </main>
 
         <Footer />
-
         <MobileMenu isOpen={isMobileMenuOpen} onClose={() => setMobileMenuOpen(false)} />
         <SearchOverlay isOpen={isSearchOpen} onClose={() => setSearchOpen(false)} />
         <CartDrawer />
